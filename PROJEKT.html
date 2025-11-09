@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IMDb Top 250 Vizualizacio</title>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: #ffffff;
+            color: #222;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            text-align: center;
+            background-color: #f8f8f8;
+            padding: 40px 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        header p {
+            margin-top: 10px;
+            color: #555;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        section {
+            margin-bottom: 60px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #fafafa;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        section h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+            border-top: 1px solid #eee;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Data Visualization Project</h1>
+        <p>IMDb Top 250 Filmek Elemzese</p>
+    </header>
+
+    <main>
+        <section>
+            <h2>1. Filmertekelések Eloszlása</h2>
+            <div id="vis1"></div>
+        </section>
+
+        <section>
+            <h2>2. Atlagos Ertekelés Trendje Evtizedek Szerint</h2>
+            <div id="vis2"></div>
+        </section>
+
+        <section>
+            <h2>3. Ertekelések Eloszlása Korhatar Besorolas Szerint</h2>
+            <div id="vis3"></div>
+        </section>
+    </main>
+
+<script>
+    const spec1 = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "data": {"url": "imdb_data.csv"},
+      "mark": "bar",
+      "encoding": {
+        "x": {
+          "field": "Rating",
+          "bin": true,
+          "title": "Ertekeles",
+          "axis": {"tickMinStep": 0.1}
+        },
+        "y": {"aggregate": "count", "title": "Filmek Szama"},
+        "tooltip": [
+          {"field": "Rating", "bin": true, "title": "Ertekelési Tartomany"},
+          {"aggregate": "count", "title": "Filmek szama"}
+        ]
+      },
+      "title": "A Filmertekelések Eloszlása"
+    };
+
+    const spec2 = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "data": {"url": "imdb_data.csv"},
+      "mark": "bar",
+      "encoding": {
+        "x": {
+          "field": "Year",
+          "bin": {"step": 10}, 
+          "type": "quantitative",
+          "title": "Megjelenes Eve (Evtizedek)"
+        },
+        "y": {
+          "field": "Rating",
+          "aggregate": "average",
+          "type": "quantitative",
+          "title": "Atlagos Ertekeles"
+        },
+        "tooltip": [
+          {"field": "Year", "bin": true, "title": "Ev Intervallum"},
+          {"field": "Rating", "aggregate": "average", "title": "Atlagos Ertekeles", "format": ".2f"}
+        ]
+      },
+      "title": {
+          "text": "Atlagos Filmertekelés Evtizedek Szerint",
+          "subtitle": "A teljes idobeli trend attekintheto bemutatasa",
+          "fontSize": 18,
+          "subtitleFontSize": 12
+      }
+    };
+
+    const spec3 = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "data": {"url": "imdb_data.csv"},
+      "transform": [
+        {"filter": "datum.AgeRating != null"}
+      ],
+      "mark": {
+        "type": "boxplot",
+        "extent": "min-max"
+      },
+      "encoding": {
+        "x": {
+          "field": "AgeRating",
+          "type": "nominal",
+          "title": "Korhatar Besorolas",
+          "sort": {"op": "median", "field": "Rating", "order": "descending"}
+        },
+        "y": {
+          "field": "Rating",
+          "type": "quantitative",
+          "title": "IMDb Ertekeles (Eloszlás)"
+        },
+        "tooltip": [
+          {"field": "AgeRating", "title": "Korhatar"},
+        ],
+        "color": {"field": "AgeRating", "legend": null}
+      },
+      "title": "Ertekelések Eloszlása Korhatar Besorolas Szerint"
+    };
+
+    vegaEmbed('#vis1', spec1, {actions: false});
+    vegaEmbed('#vis2', spec2, {actions: false});
+    vegaEmbed('#vis3', spec3, {actions: false});
+</script>
+</body>
+</html>
