@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMDb Stealth Dashboard (8+ Rating)</title>
+    <title>IMDb Stealth Dashboard</title>
     <link rel="stylesheet" href="style.css">
     
     <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
@@ -13,16 +13,16 @@
 </head>
 <body>
 
-    <h1>IMDb DASHBOARD(8+ Rating)</h1>
-    <div class="subtitle">Cinema Analytics by Szekely Laszlo-Tamas</div>
+    <h1>IMDb DASHBOARD</h1>
+    <div class="subtitle">(8+ Rating movies rated only)</div>
 
     <div class="bento-grid">
         
         <section class="area-trend">
             <h2>Rating History</h2>
             <p class="insight">
-                Historical analysis of IMDb scores. 
-                <span style="color:var(--accent-red)">Consistent 9.0+ ratings</span> became rarer after the year 2000.
+                Ratings stay very stable (~8.3 avg). 
+                <span style="color:var(--accent-red)">Huge spike </span>in the 70's.
             </p>
             <div id="vis-trend" class="viz-container"></div>
         </section>
@@ -41,31 +41,41 @@
 
         <section class="area-decade">
             <h2>Decade Dominance</h2>
-            <p class="insight">Number of top-rated movies released per decade.</p>
+            <p class="insight">
+                The 2000s and 2010s are the biggest here. Almost <span style="color:var(--accent-red)">40% of top movies</span> are from this time.
+            </p>
             <div id="vis-decade" class="viz-container"></div>
         </section>
 
         <section class="area-box">
             <h2>Rating Distributions</h2>
-            <p class="insight">Zoomed view (8.0 - 10.0) by Certification.</p>
+            <p class="insight">
+                It is surprising, but <span style="color:var(--accent-red)">R-rated movies</span> have better middle score than the family friendly PG-13 movies.
+            </p>
             <div id="vis-box" class="viz-container"></div>
         </section>
 
         <section class="area-heat">
             <h2>Density Matrix</h2>
-            <p class="insight">Concentration of highly rated movies vs. Runtime.</p>
+            <p class="insight">
+                Best length for a masterpiece is <span style="color:var(--accent-red)">2 to 2.5 hours</span>. Short movies usually do not make the list.
+            </p>
             <div id="vis-heat" class="viz-container"></div>
         </section>
 
         <section class="area-toplist">
             <h2>Top Performers</h2>
-            <p class="insight">Highest rated movies in dataset.</p>
+            <p class="insight">
+                These are favorites for everyone. Critics like them, and normal fans like them too.
+            </p>
             <ul id="top-performers-list" class="top-list"></ul>
         </section>
 
         <section class="area-new1">
             <h2>Popularity vs. Quality</h2>
-            <p class="insight">Do more votes equal higher ratings? (Size = Vote Count)</p>
+            <p class="insight">
+                Popularity goes with quality. Data shows that <span style="color:var(--accent-red)">movies with many votes</span> usually have higher rating too.
+            </p>
             <div id="vis-scatter" class="viz-container"></div>
         </section>
 
@@ -101,7 +111,6 @@
                     }
 
                     // 3. CLEAN YEAR & DECADE
-                    // We create a Date String ("1994-01-01") for the Chart, and an Integer (1994) for Math.
                     const yearInt = parseInt(d.Year);
                     const yearDate = !isNaN(yearInt) ? `${yearInt}-01-01` : null;
                     const decade = !isNaN(yearInt) ? Math.floor(yearInt / 10) * 10 : null;
@@ -109,8 +118,8 @@
                     return {
                         ...d,
                         YearInt: yearInt,
-                        YearDate: yearDate, // Use this for Temporal Axes
-                        Decade: decade,     // Use this for Decade Chart
+                        YearDate: yearDate, 
+                        Decade: decade,     
                         Rating: +d.Rating,
                         VotesRaw: parseFloat(votes) * multiplier,
                         DurationMins: duration
@@ -155,7 +164,7 @@
                 "title": {"color": "#fff", "fontSize": 14, "anchor": "start"}
             };
 
-            // 1. TREND LINE (Uses YearDate ISO String)
+            // 1. TREND LINE
             vegaEmbed('#vis-trend', {
                 "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
                 "data": {"values": cleanData},
@@ -169,7 +178,7 @@
                 }
             }, {actions: false});
 
-            // 2. DECADE BAR (Uses Pre-calculated Decade)
+            // 2. DECADE BAR
             vegaEmbed('#vis-decade', {
                 "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
                 "data": {"values": cleanData},
@@ -184,7 +193,7 @@
                 }
             }, {actions: false});
 
-            // 3. BOX PLOT
+            // 3. BOX PLOT (UPDATED with 2 decimal precision tooltips)
             vegaEmbed('#vis-box', {
                 "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
                 "data": {"values": cleanData},
@@ -195,7 +204,14 @@
                 "encoding": {
                     "x": {"field": "AgeRating", "type": "nominal", "title": null},
                     "y": { "field": "Rating", "type": "quantitative", "scale": {"domain": [8, 10]}, "title": "Score (8-10)" },
-                    "tooltip": [{"field": "AgeRating"}]
+                    "tooltip": [
+                        {"field": "AgeRating", "title": "Age Rating"},
+                        {"field": "Rating", "aggregate": "min", "format": ".2f", "title": "Min"},
+                        {"field": "Rating", "aggregate": "q1", "format": ".2f", "title": "Q1"},
+                        {"field": "Rating", "aggregate": "median", "format": ".2f", "title": "Median"},
+                        {"field": "Rating", "aggregate": "q3", "format": ".2f", "title": "Q3"},
+                        {"field": "Rating", "aggregate": "max", "format": ".2f", "title": "Max"}
+                    ]
                 }
             }, {actions: false});
 
@@ -252,5 +268,4 @@
         loadAndProcessData();
     </script>
 </body>
-
 </html>
