@@ -1,0 +1,207 @@
+/* style.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --bg-dark: #050505;       
+    --bg-panel: rgba(20, 20, 20, 0.4); 
+    --accent-red: #D90429;
+    --accent-red-glow: rgba(217, 4, 41, 0.25);
+    --text-main: #ffffff;
+    --text-muted: #888888;
+    --border-glass: 1px solid rgba(255, 255, 255, 0.08);
+    --glow-box: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+body {
+    background-color: var(--bg-dark);
+    /* Tech Grid Background */
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding-bottom: 60px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+/* --- Typography --- */
+h1 {
+    text-align: center;
+    margin-top: 60px;
+    margin-bottom: 10px;
+    font-size: 5rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--accent-red);
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 60px;
+
+    font-weight: 600;
+}
+
+h2 {
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-top: 0;
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+}
+
+h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 18px;
+    background: var(--accent-red);
+    margin-right: 12px;
+    box-shadow: 0 0 10px var(--accent-red);
+}
+
+p.insight {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: #aaa;
+    margin-bottom: 15px;
+    border-left: 2px solid #333;
+    padding-left: 12px;
+}
+
+/* --- Stats & Lists --- */
+.stat-block {
+    text-align: center;
+}
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    display: block;
+    line-height: 1;
+    margin-bottom: 5px;
+    text-shadow: 0 0 20px rgba(255,255,255,0.1);
+}
+.stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent-red);
+}
+
+ul.top-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+ul.top-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+ul.top-list li:last-child { border-bottom: none; }
+ul.top-list .movie-title { color: #fff; font-weight: 500; }
+ul.top-list .movie-score { color: var(--accent-red); font-weight: 700; }
+
+/* --- BENTO GRID LAYOUT --- */
+.bento-grid {
+    display: grid;
+    /* Added a 4th row for the 2 new charts */
+    grid-template-areas: 
+        "trend trend stats"
+        "decade decade decade"
+        "box   heat  toplist"
+        "new1  new1  new2";
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 24px;
+    padding: 0 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.area-trend   { grid-area: trend; }
+.area-stats   { grid-area: stats; }
+.area-decade  { grid-area: decade; }
+.area-box     { grid-area: box; }
+.area-heat    { grid-area: heat; }
+.area-toplist { grid-area: toplist; }
+.area-new1    { grid-area: new1; } /* New Scatter Plot */
+.area-new2    { grid-area: new2; } /* New Top Votes Bar */
+
+section {
+    background: var(--bg-panel);
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    border: var(--border-glass);
+    border-radius: 8px; /* Sharper corners for tech look */
+    padding: 24px;
+    box-shadow: var(--glow-box);
+    display: flex;
+    flex-direction: column;
+    min-height: 320px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- Vega Chart Containers --- */
+.viz-container {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+}
+
+/* Tooltip Styling */
+#vg-tooltip-element {
+    background-color: #000 !important;
+    border: 1px solid #333 !important;
+    color: #eee !important;
+    font-family: 'Inter', sans-serif !important;
+    padding: 8px 12px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
+}
+
+/* --- ANIMATED FILM GRAIN (FIXED) --- */
+@keyframes noise {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-5%, -10%); }
+    20% { transform: translate(-15%, 5%); }
+    30% { transform: translate(7%, -25%); }
+    40% { transform: translate(-5%, 25%); }
+    50% { transform: translate(-15%, 10%); }
+    60% { transform: translate(15%, 0%); }
+    70% { transform: translate(0%, 15%); }
+    80% { transform: translate(3%, 35%); }
+    90% { transform: translate(-10%, 10%); }
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    top: -50%; left: -50%; 
+    width: 200%; height: 200%;
+    /* Standard Noise SVG Data URI */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='4' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.05; 
+    pointer-events: none;
+    z-index: 9999;
+    animation: noise 0.2s infinite;
+}
+
+@media (max-width: 900px) {
+    .bento-grid {
+        display: flex;
+        flex-direction: column;
+    }
+    h1 { font-size: 3rem; margin-top: 40px; }
+}
