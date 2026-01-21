@@ -1,175 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IMDb Top 250 Vizualizacio</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMDb Stealth Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
-    <style>
-        body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background-color: #ffffff;
-            color: #222;
-            margin: 0;
-            padding: 0;
-        }
-
-        header {
-            text-align: center;
-            background-color: #f8f8f8;
-            padding: 40px 20px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 2rem;
-        }
-
-        header p {
-            margin-top: 10px;
-            color: #555;
-        }
-
-        main {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        section {
-            margin-bottom: 60px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 20px;
-            background-color: #fafafa;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-        }
-
-        section h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        footer {
-            text-align: center;
-            color: #888;
-            padding: 20px;
-            border-top: 1px solid #eee;
-            margin-top: 40px;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/d3-dsv@3"></script>
 </head>
-
 <body>
-    <header>
-        <h1>Data Visualization Project</h1>
-        <p>IMDb Top 250 Filmek Elemzese</p>
-    </header>
 
-    <main>
-        <section>
-            <h2>1. Filmertekelések Eloszlása</h2>
-            <div id="vis1"></div>
+    <h1>IMDb DASHBOARD</h1>
+    <div class="subtitle">Cinema Analytics by Szekely Laszlo-Tamas</div>
+
+    <div class="bento-grid">
+        
+        <section class="area-trend">
+            <h2>Rating History</h2>
+            <p class="insight">
+                Historical analysis of IMDb scores. 
+                <span style="color:var(--accent-red)">Consistent 9.0+ ratings</span> became rarer after the year 2000.
+            </p>
+            <div id="vis-trend" class="viz-container"></div>
         </section>
 
-        <section>
-            <h2>2. Atlagos Ertekelés Trendje Evtizedek Szerint</h2>
-            <div id="vis2"></div>
+        <section class="area-stats" style="justify-content: center; gap: 20px;">
+            <div class="stat-block">
+                <span id="stat-total-movies" class="stat-number">...</span>
+                <span class="stat-label">Movies Analyzed</span>
+            </div>
+            <div style="width: 100%; height: 1px; background: #333; margin: 10px 0;"></div>
+            <div class="stat-block">
+                <span id="stat-avg-rating" class="stat-number">...</span>
+                <span class="stat-label">Global Avg Rating</span>
+            </div>
         </section>
 
-        <section>
-            <h2>3. Ertekelések Eloszlása Korhatar Besorolas Szerint</h2>
-            <div id="vis3"></div>
+        <section class="area-decade">
+            <h2>Decade Dominance</h2>
+            <p class="insight">Number of top-rated movies released per decade.</p>
+            <div id="vis-decade" class="viz-container"></div>
         </section>
-    </main>
 
-<script>
-    const spec1 = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "data": {"url": "imdb_data.csv"},
-      "mark": "bar",
-      "encoding": {
-        "x": {
-          "field": "Rating",
-          "bin": true,
-          "title": "Ertekeles",
-          "axis": {"tickMinStep": 0.1}
-        },
-        "y": {"aggregate": "count", "title": "Filmek Szama"},
-        "tooltip": [
-          {"field": "Rating", "bin": true, "title": "Ertekelési Tartomany"},
-          {"aggregate": "count", "title": "Filmek szama"}
-        ]
-      },
-      "title": "A Filmertekelések Eloszlása"
-    };
+        <section class="area-box">
+            <h2>Rating Distributions</h2>
+            <p class="insight">Zoomed view (8.0 - 10.0) by Certification.</p>
+            <div id="vis-box" class="viz-container"></div>
+        </section>
 
-    const spec2 = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "data": {"url": "imdb_data.csv"},
-      "mark": "bar",
-      "encoding": {
-        "x": {
-          "field": "Year",
-          "bin": {"step": 10}, 
-          "type": "quantitative",
-          "title": "Megjelenes Eve (Evtizedek)"
-        },
-        "y": {
-          "field": "Rating",
-          "aggregate": "average",
-          "type": "quantitative",
-          "title": "Atlagos Ertekeles"
-        },
-        "tooltip": [
-          {"field": "Year", "bin": true, "title": "Ev Intervallum"},
-          {"field": "Rating", "aggregate": "average", "title": "Atlagos Ertekeles", "format": ".2f"}
-        ]
-      },
-      "title": {
-          "text": "Atlagos Filmertekelés Evtizedek Szerint",
-          "subtitle": "A teljes idobeli trend attekintheto bemutatasa",
-          "fontSize": 18,
-          "subtitleFontSize": 12
-      }
-    };
+        <section class="area-heat">
+            <h2>Density Matrix</h2>
+            <p class="insight">Concentration of highly rated movies vs. Runtime.</p>
+            <div id="vis-heat" class="viz-container"></div>
+        </section>
 
-    const spec3 = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "data": {"url": "imdb_data.csv"},
-      "transform": [
-        {"filter": "datum.AgeRating != null"}
-      ],
-      "mark": {
-        "type": "boxplot",
-        "extent": "min-max"
-      },
-      "encoding": {
-        "x": {
-          "field": "AgeRating",
-          "type": "nominal",
-          "title": "Korhatar Besorolas",
-          "sort": {"op": "median", "field": "Rating", "order": "descending"}
-        },
-        "y": {
-          "field": "Rating",
-          "type": "quantitative",
-          "title": "IMDb Ertekeles (Eloszlás)"
-        },
-        "tooltip": [
-          {"field": "AgeRating", "title": "Korhatar"},
-        ],
-        "color": {"field": "AgeRating", "legend": null}
-      },
-      "title": "Ertekelések Eloszlása Korhatar Besorolas Szerint"
-    };
+        <section class="area-toplist">
+            <h2>Top Performers</h2>
+            <p class="insight">Highest rated movies in dataset.</p>
+            <ul id="top-performers-list" class="top-list"></ul>
+        </section>
 
-    vegaEmbed('#vis1', spec1, {actions: false});
-    vegaEmbed('#vis2', spec2, {actions: false});
-    vegaEmbed('#vis3', spec3, {actions: false});
-</script>
+        <section class="area-new1">
+            <h2>Popularity vs. Quality</h2>
+            <p class="insight">Do more votes equal higher ratings? (Size = Vote Count)</p>
+            <div id="vis-scatter" class="viz-container"></div>
+        </section>
+
+        <section class="area-new2">
+            <h2>Most Voted</h2>
+            <div id="vis-topvotes" class="viz-container"></div>
+        </section>
+
+    </div>
+
+    <script>
+        async function loadAndProcessData() {
+            try {
+                const response = await fetch('imdb_data.csv');
+                const text = await response.text();
+                
+                // Parse CSV
+                const data = d3.csvParse(text, (d) => {
+                    // 1. CLEAN VOTES
+                    let votes = d.Votes || "0";
+                    votes = votes.replace(/[()]/g, ''); 
+                    let multiplier = 1;
+                    if (votes.includes('M')) { multiplier = 1000000; votes = votes.replace('M', ''); }
+                    else if (votes.includes('K')) { multiplier = 1000; votes = votes.replace('K', ''); }
+                    
+                    // 2. CLEAN DURATION
+                    let duration = 0;
+                    if (d.Duration) {
+                        const hMatch = d.Duration.match(/(\d+)h/);
+                        const mMatch = d.Duration.match(/(\d+)m/);
+                        if (hMatch) duration += parseInt(hMatch[1]) * 60;
+                        if (mMatch) duration += parseInt(mMatch[1]);
+                    }
+
+                    // 3. CLEAN YEAR & DECADE
+                    // We create a Date String ("1994-01-01") for the Chart, and an Integer (1994) for Math.
+                    const yearInt = parseInt(d.Year);
+                    const yearDate = !isNaN(yearInt) ? `${yearInt}-01-01` : null;
+                    const decade = !isNaN(yearInt) ? Math.floor(yearInt / 10) * 10 : null;
+
+                    return {
+                        ...d,
+                        YearInt: yearInt,
+                        YearDate: yearDate, // Use this for Temporal Axes
+                        Decade: decade,     // Use this for Decade Chart
+                        Rating: +d.Rating,
+                        VotesRaw: parseFloat(votes) * multiplier,
+                        DurationMins: duration
+                    };
+                });
+
+                // Filter bad rows
+                const cleanData = data.filter(d => d.YearDate && !isNaN(d.Rating));
+
+                // --- UPDATE STATS ---
+                document.getElementById('stat-total-movies').innerText = cleanData.length;
+                const avg = cleanData.reduce((acc, c) => acc + c.Rating, 0) / cleanData.length;
+                document.getElementById('stat-avg-rating').innerText = avg.toFixed(1);
+
+                // Top List
+                const topMovies = [...cleanData].sort((a, b) => b.Rating - a.Rating).slice(0, 3);
+                document.getElementById('top-performers-list').innerHTML = topMovies.map(m => `
+                    <li>
+                        <span class="movie-title">${m.Title}</span>
+                        <span class="movie-score">${m.Rating.toFixed(1)}</span>
+                    </li>
+                `).join('');
+
+                renderCharts(cleanData);
+
+            } catch (err) {
+                console.error("Error loading data:", err);
+                document.querySelector('.bento-grid').innerHTML = `<h2 style="color:red; text-align:center; grid-column: 1/-1;">Error loading data. Check console.</h2>`;
+            }
+        }
+
+        function renderCharts(cleanData) {
+            const darkConfig = {
+                "background": "transparent",
+                "view": {"stroke": "transparent"},
+                "font": "Inter",
+                "axis": {
+                    "domainColor": "#333", "gridColor": "#222", "tickColor": "#333",
+                    "labelColor": "#666", "titleColor": "#888", "titleFontWeight": "normal"
+                },
+                "legend": {"labelColor": "#888", "titleColor": "#fff"},
+                "title": {"color": "#fff", "fontSize": 14, "anchor": "start"}
+            };
+
+            // 1. TREND LINE (Uses YearDate ISO String)
+            vegaEmbed('#vis-trend', {
+                "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                "data": {"values": cleanData},
+                "width": "container", "height": "container",
+                "config": darkConfig,
+                "mark": { "type": "line", "color": "#D90429", "interpolate": "monotone", "point": {"filled": true, "fill": "#050505", "stroke": "#D90429"} },
+                "encoding": {
+                    "x": { "field": "YearDate", "type": "temporal", "title": null },
+                    "y": { "field": "Rating", "type": "quantitative", "aggregate": "mean", "scale": {"zero": false}, "title": "Avg Rating" },
+                    "tooltip": [{"field": "YearDate", "type": "temporal", "format": "%Y", "title": "Year"}, {"field": "Rating", "aggregate": "mean", "format": ".2f"}]
+                }
+            }, {actions: false});
+
+            // 2. DECADE BAR (Uses Pre-calculated Decade)
+            vegaEmbed('#vis-decade', {
+                "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                "data": {"values": cleanData},
+                "width": "container", "height": "container",
+                "config": darkConfig,
+                "mark": {"type": "bar", "color": "#333", "cornerRadiusEnd": 2},
+                "encoding": {
+                    "x": { "field": "Decade", "type": "ordinal", "title": "Decade", "axis": {"labelAngle": 0} },
+                    "y": { "aggregate": "count", "title": "Movie Count" },
+                    "color": { "condition": {"test": "datum.count > 5", "value": "#D90429"}, "value": "#333" },
+                    "tooltip": [{"field": "Decade"}, {"aggregate": "count"}]
+                }
+            }, {actions: false});
+
+            // 3. BOX PLOT
+            vegaEmbed('#vis-box', {
+                "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                "data": {"values": cleanData},
+                "width": "container", "height": "container",
+                "config": darkConfig,
+                "transform": [{"filter": "datum.AgeRating != null"}],
+                "mark": {"type": "boxplot", "extent": "min-max", "color": "#D90429", "size": 30},
+                "encoding": {
+                    "x": {"field": "AgeRating", "type": "nominal", "title": null},
+                    "y": { "field": "Rating", "type": "quantitative", "scale": {"domain": [8, 10]}, "title": "Score (8-10)" },
+                    "tooltip": [{"field": "AgeRating"}]
+                }
+            }, {actions: false});
+
+            // 4. HEATMAP
+            vegaEmbed('#vis-heat', {
+                "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                "data": {"values": cleanData},
+                "width": "container", "height": "container",
+                "config": darkConfig,
+                "mark": "rect",
+                "encoding": {
+                    "x": {"field": "DurationMins", "bin": {"maxbins": 20}, "title": "Runtime (min)"},
+                    "y": {"field": "Rating", "bin": {"maxbins": 10}, "title": "Rating"},
+                    "color": {"aggregate": "count", "scale": {"scheme": "reds"}, "legend": null},
+                    "tooltip": [{"bin": "binned_DurationMins", "field": "DurationMins", "title": "Mins"}, {"aggregate": "count"}]
+                }
+            }, {actions: false});
+
+            // 5. SCATTER PLOT
+            vegaEmbed('#vis-scatter', {
+                "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                "data": {"values": cleanData},
+                "width": "container", "height": "container",
+                "config": darkConfig,
+                "mark": {"type": "circle", "opacity": 0.6, "color": "#D90429"},
+                "encoding": {
+                    "x": {"field": "VotesRaw", "type": "quantitative", "scale": {"type": "log"}, "title": "Votes (Log)"},
+                    "y": {"field": "Rating", "type": "quantitative", "scale": {"domain": [8, 9.5]}, "title": "Rating"},
+                    "size": {"field": "VotesRaw", "type": "quantitative", "legend": null},
+                    "tooltip": [{"field": "Title"}, {"field": "Rating"}, {"field": "Votes", "title": "Votes"}]
+                }
+            }, {actions: false});
+
+            // 6. TOP VOTES BAR
+            vegaEmbed('#vis-topvotes', {
+                "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                "data": {"values": cleanData},
+                "width": "container", "height": "container",
+                "config": darkConfig,
+                "transform": [
+                    {"window": [{"op": "rank", "as": "rank"}], "sort": [{"field": "VotesRaw", "order": "descending"}]},
+                    {"filter": "datum.rank <= 5"}
+                ],
+                "mark": {"type": "bar", "color": "#333"},
+                "encoding": {
+                    "y": {"field": "Title", "type": "nominal", "sort": "-x", "axis": {"labelLimit": 150}},
+                    "x": {"field": "VotesRaw", "type": "quantitative", "title": "Total Votes"},
+                    "color": {"value": "#D90429"},
+                    "tooltip": [{"field": "Title"}, {"field": "Votes", "title": "Count"}]
+                }
+            }, {actions: false});
+        }
+
+        loadAndProcessData();
+    </script>
 </body>
 </html>
